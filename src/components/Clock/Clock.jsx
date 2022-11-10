@@ -1,29 +1,34 @@
-import { Component } from 'react';
-import { ClockContainer } from './Clock.styled';
+import { useState, useEffect, useRef } from 'react';
+import { ClockContainer, Text, Btn } from './Clock.styled';
 
-export default class Clock extends Component {
-  state = {
-    time: new Date().toLocaleTimeString(),
+export default function Clock() {
+  const [time, setTime] = useState(() => new Date());
+  const intervalId = useRef(null);
+
+  useEffect(() => {
+    intervalId.current = setInterval(() => {
+      // console.log('Це інтервал кожні 2000ms ' + Date.now());
+      setTime(new Date());
+    }, 1000);
+
+    return () => {
+      console.log('Це функція очистки перед наступним викликом useEffect');
+      stop();
+    };
+  }, []);
+
+  const stop = () => {
+    clearInterval(intervalId.current);
   };
 
-  intervalId = null;
-
-  componentDidMount() {
-    console.log('setInterval');
-
-    this.intervalId = setInterval(
-      () => this.setState({ time: new Date().toLocaleTimeString() }),
-      1000
-    );
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
-  }
-
-  render() {
-    return (
-      <ClockContainer className="Clock__face">{this.state.time}</ClockContainer>
-    );
-  }
+  return (
+    <ClockContainer>
+      <Text>
+        Current time: <span> {time.toLocaleTimeString()}</span>
+      </Text>
+      <Btn type="button" onClick={stop}>
+        Stop time
+      </Btn>
+    </ClockContainer>
+  );
 }
